@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "mutedwhisper",
+  "version": "${version}",
+
+  "name": "Muted Whisper",
+  "description": "Перехватывает сообщения в чат и рассылает их через /msg игрокам поблизости, если игрок замучен.",
+  "authors": [
+    "BestDay_"
+  ],
+  "license": "MIT",
+
+  "environment": "client",
+
+  "entrypoints": {
+    "client": [
+      "com.example.mutedwhisper.MutedWhisperClient"
+    ],
+    "modmenu": [
+      "com.example.mutedwhisper.MutedWhisperModMenuIntegration"
+    ]
+  },
+
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
