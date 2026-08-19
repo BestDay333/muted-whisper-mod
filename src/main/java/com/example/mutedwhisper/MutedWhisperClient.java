@@ -17,8 +17,6 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +39,7 @@ public class MutedWhisperClient implements ClientModInitializer {
     public static float maxDistance = 100.0f;
     public static String msgCommand = "msg";
     public static boolean isEnabled = false;
+    public static boolean showNotification = true; // Уведомления включены по умолчанию
     public static final Set<String> blackList = new HashSet<>();
 
     private static boolean hasWelcomed = false;
@@ -48,6 +47,7 @@ public class MutedWhisperClient implements ClientModInitializer {
 
     public static class ConfigData {
         public boolean firstLaunchDone = false;
+        public boolean showNotification = true; // Сохранение в конфиг
     }
 
     @Override
@@ -84,9 +84,25 @@ public class MutedWhisperClient implements ClientModInitializer {
                         sendInfo("§cРежим шепота ВЫКЛЮЧЕН.");
                         return 1;
                     }))
+                    // Новая подкоманда notification
+                    .then(ClientCommandManager.literal("notification")
+                        .then(ClientCommandManager.literal("on").executes(ctx -> {
+                            showNotification = true;
+                            saveCurrentConfig();
+                            sendInfo("§aУведомления о шёпоте ВКЛЮЧЕНЫ.");
+                            return 1;
+                        }))
+                        .then(ClientCommandManager.literal("off").executes(ctx -> {
+                            showNotification = false;
+                            saveCurrentConfig();
+                            sendInfo("§cУведомления о шёпоте ВЫКЛЮЧЕНЫ.");
+                            return 1;
+                        }))
+                    )
                     .then(ClientCommandManager.literal("help").executes(ctx -> {
                         sendInfo("§e=== Справка MutedWhisper ===");
                         sendInfo("§6/wl on / off §7- Включить или выключить режим шепота");
+                        sendInfo("§6/wl notification <on|off> §7- Включить/выключить уведомления");
                         sendInfo("§6/wl help §7- Показать эту справку");
                         sendInfo("§6/wl wnear §7- Показать игроков в радиусе шепота");
                         sendInfo("§6/wl cmd <msg|tell|w> §7- Изменить команду ЛС");
@@ -179,7 +195,6 @@ public class MutedWhisperClient implements ClientModInitializer {
             if (client.player != null) {
                 client.player.sendMessage(Text.literal("§6[MutedWhisper] §aВы используете наш мод! Весь функционал можете узнать по команде §e/wl help§a."), false);
                 
-                // Безопасный вывод ссылки без проблемного ClickEvent, вызывающего InstantiationError
                 Text githubLink = Text.literal("§7Следите за развитием проекта на нашем GitHub: §b§nhttps://github.com/BestDay333/muted-whisper-mod");
                 client.player.sendMessage(githubLink, false);
                 
@@ -218,8 +233,15 @@ public class MutedWhisperClient implements ClientModInitializer {
         }
     }
 
+    private void saveCurrentConfig() {
+        ConfigData data = loadConfigData();
+        data.showNotification = showNotification;
+        saveConfigData(data);
+    }
+
     private void loadConfig() {
-        loadConfigData();
+        ConfigData data = loadConfigData();
+        showNotification = data.showNotification;
     }
 
     private List<String> getNearbyPlayerNames() {
@@ -281,7 +303,10 @@ public class MutedWhisperClient implements ClientModInitializer {
             }
         }
 
-        sendInfo("§aШепот отправлен (" + nearbyPlayerNames.size() + " игрокам): " + message);
+        // Проверяем, включены ли уведомления, перед отправкой текста игроку
+        if (showNotification) {
+            sendInfo("§aШепот отправлен (" + nearbyPlayerNames.size() + " игрокам): " + message);
+        }
     }
 
     private void executeCommand(MinecraftClient client, String command) {
@@ -296,4 +321,4 @@ public class MutedWhisperClient implements ClientModInitializer {
             client.player.sendMessage(Text.literal("§7[MutedWhisper] " + text), false);
         }
     }
-}   
+}
