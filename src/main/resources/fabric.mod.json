@@ -2,29 +2,28 @@
   "schemaVersion": 1,
   "id": "mutedwhisper",
   "version": "${version}",
-
   "name": "Muted Whisper",
-  "description": "Перехватывает сообщения в чат и рассылает их через /msg игрокам поблизости, если игрок замучен.",
-  "authors": [
-    "BestDay_"
-  ],
-  "license": "MIT",
-
-  "environment": "client",
-
-  "entrypoints": {
-    "client": [
-      "com.example.mutedwhisper.MutedWhisperClient"
-    ],
-    "modmenu": [
-      "com.example.mutedwhisper.MutedWhisperModMenuIntegration"
-    ]
+  "description": "Перехватывает сообщения в чат и рассылает их через /msg игрокам поблизости.",
+  "authors": ["BestDay_"],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/mutedwhisper",
+    "issues": "https://github.com/BestDay333/muted-whisper-mod/issues",
+    "sources": "https://github.com/BestDay333/muted-whisper-mod"
   },
-
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.example.mutedwhisper.MutedWhisperClient"],
+    "modmenu": ["com.example.mutedwhisper.ModMenuIntegration"]
+  },
   "depends": {
     "fabricloader": ">=0.16.0",
     "minecraft": "~1.21.1",
     "java": ">=21",
-    "fabric-api": "*"
+    "fabric-api": "*",
+    "cloth-config": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
   }
 }
